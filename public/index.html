@@ -37,48 +37,48 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-    // Fetch regions when the page loads
-    fetch('https://riceyield.onrender.com/regions')
+      fetch('https://riceyield.onrender.com/regions')
         .then(response => {
-        if (!response.ok) throw new Error('Failed to fetch regions');
-        return response.json();
+          if (!response.ok) throw new Error('Failed to fetch regions');
+          return response.json();
         })
         .then(data => {
-        const dropdown = document.getElementById('region');
-        data.forEach(region => {
+          const dropdown = document.getElementById('region');
+          data.forEach(region => {
             const option = document.createElement('option');
             option.value = region;
             option.textContent = region;
             dropdown.appendChild(option);
-        });
+          });
         })
         .catch(error => {
-        console.error('Error fetching regions:', error);
-        const dropdown = document.getElementById('region');
-        const errorOption = document.createElement('option');
-        errorOption.textContent = 'Error loading regions';
-        dropdown.appendChild(errorOption);
+          console.error('Error fetching regions:', error);
+          const dropdown = document.getElementById('region');
+          const errorOption = document.createElement('option');
+          errorOption.textContent = 'Error loading regions';
+          dropdown.appendChild(errorOption);
         });
     });
 
-
-    // Fetch rice yield
     function getRiceYield() {
       const region = document.getElementById('region').value;
       const year = document.getElementById('year').value;
       const month = document.getElementById('month').value;
-      console.log({ region, year, month });
 
       fetch('https://riceyield.onrender.com/get-rice-yield', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ region, year, month })
       })
-        .then(response => response.json())
+        .then(response => {
+          if (!response.ok) throw new Error('Failed to fetch data');
+          return response.json();
+        })
         .then(data => {
           document.getElementById('result').textContent = `Rice Yield: ${data.value}`;
         })
         .catch(error => {
+          console.error('Error fetching data:', error);
           document.getElementById('result').textContent = 'Error fetching data';
         });
     }
