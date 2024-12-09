@@ -1,50 +1,140 @@
-/* styles.css */
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
+/* Base styles */
 body {
-    font-family: Arial, sans-serif;
-    line-height: 1.6;
-    margin: 20px;
-    background-color: #f4f4f9;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, #eef2f3, #8e9eab);
+  color: #333;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+h1 {
+  font-size: 2.5rem;
+  color: #34495e;
+  margin-bottom: 20px;
+  text-align: center;
+  animation: fadeInDown 1s ease-in-out;
+}
+
+label {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-top: 20px;
+  display: block;
+  color: #34495e;
+  animation: fadeInUp 1s ease-in-out;
+}
+
+select,
+input {
+  width: 100%;
+  max-width: 300px;
+  padding: 10px;
+  margin-top: 10px;
+  font-size: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  animation: fadeInUp 1.2s ease-in-out;
+}
+
+select:hover,
+input:focus {
+  border-color: #3498db;
+  box-shadow: 0 4px 8px rgba(52, 152, 219, 0.2);
+}
+
+button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  color: #fff;
+  background-color: #3498db;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  animation: fadeInUp 1.4s ease-in-out;
+}
+
+button:hover {
+  background-color: #2980b9;
+  transform: translateY(-2px);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+#result {
+  margin-top: 30px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #2c3e50;
+  animation: fadeIn 1.5s ease-in-out;
+}
+
+/* Container styles */
+body > * {
+  max-width: 400px;
+  text-align: center;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
   }
-  
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
   h1 {
-    color: #333;
+    font-size: 2rem;
   }
-  
-  label {
-    display: block;
-    margin-top: 10px;
-    font-weight: bold;
-  }
-  
+
+  label,
   select,
   input,
   button {
-    margin-top: 5px;
-    padding: 8px;
-    font-size: 14px;
-    width: 100%;
-    max-width: 300px;
-    box-sizing: border-box;
+    font-size: 0.9rem;
   }
-  
-  button {
-    margin-top: 15px;
-    padding: 10px 15px;
-    background-color: #28a745;
-    color: white;
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
-  }
-  
-  button:hover {
-    background-color: #218838;
-  }
-  
+
   #result {
-    margin-top: 20px;
-    font-size: 18px;
-    color: #555;
+    font-size: 1.2rem;
   }
-  
+}
