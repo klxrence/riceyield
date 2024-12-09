@@ -63,6 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
     const promises = [];
     const labels = [];
+    
     for (let i = 0; i < monthsToFetch; i++) {
       const targetDate = new Date(startDate);
       targetDate.setMonth(targetDate.getMonth() + i);
@@ -75,13 +76,17 @@ document.addEventListener('DOMContentLoaded', () => {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ region, year: targetYear, month: targetMonth })
-        }).then(response => response.json())
+        })
+        .then(response => response.json())
+        .then(data => {
+          return data.value ? parseFloat(data.value) : null;
+        })
       );
     }
   
     Promise.all(promises)
       .then(results => {
-        const data = results.map(result => (result.value ? parseFloat(result.value) : null));
+        const data = results.map(result => result === null ? null : result);
         updateChart(region, labels, data, year, month);
       })
       .catch(error => console.error('Error fetching chart data:', error));
