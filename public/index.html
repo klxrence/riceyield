@@ -6,6 +6,7 @@
   <title>Rice Yield Prediction</title>
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="script.js" defer></script>
 </head>
 <body>
   <div class="container">
@@ -38,77 +39,5 @@
     <h2 id="result"></h2>
     <canvas id="chart" width="400" height="200"></canvas>
   </div>
-
-  <script>
-    // Fetch regions when the page loads
-    document.addEventListener('DOMContentLoaded', () => {
-      fetch('https://riceyield.onrender.com/regions')
-        .then(response => response.json())
-        .then(data => {
-          const dropdown = document.getElementById('region');
-          data.forEach(region => {
-            const option = document.createElement('option');
-            option.value = region;
-            option.textContent = region;
-            dropdown.appendChild(option);
-          });
-        })
-        .catch(error => {
-          console.error('Error fetching regions:', error);
-        });
-    });
-
-    // Fetch rice yield and chart data
-    function getRiceYield() {
-      const region = document.getElementById('region').value;
-      const year = document.getElementById('year').value;
-      const month = document.getElementById('month').value;
-
-      fetch('https://riceyield.onrender.com/get-rice-yield', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ region, year, month })
-      })
-        .then(response => response.json())
-        .then(data => {
-          document.getElementById('result').textContent = `Rice Yield: ${data.value}`;
-          // Assuming you fetch a month-by-month chart data here
-          fetchRiceYieldChartData(region, year);
-        })
-        .catch(error => {
-          document.getElementById('result').textContent = 'Error fetching data';
-        });
-    }
-
-    // Fetch chart data for the selected region and year
-    function fetchRiceYieldChartData(region, year) {
-      // Example of fetching data for a chart, adjust to your dataset
-      fetch('https://riceyield.onrender.com/get-rice-yield', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ region, year, month: '1' }) // January as an example
-      })
-      .then(response => response.json())
-      .then(data => {
-        const chartData = {
-          labels: ['January', 'February', 'March', 'April', 'May'], // Example months
-          datasets: [{
-            label: 'Rice Yield',
-            data: [data.value, 35, 45, 50, 60], // Replace with dynamic data
-            borderColor: 'rgba(75, 192, 192, 1)',
-            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-            fill: true
-          }]
-        };
-
-        const ctx = document.getElementById('chart').getContext('2d');
-        new Chart(ctx, {
-          type: 'line',
-          data: chartData
-        });
-      })
-      .catch(error => console.error('Error fetching chart data:', error));
-    }
-  </script>
 </body>
 </html>
