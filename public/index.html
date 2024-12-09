@@ -38,7 +38,7 @@
   <script>
     document.addEventListener('DOMContentLoaded', () => {
     // Fetch regions when the page loads
-    fetch('https://localhost:5500/regions')
+    fetch('riceyield.onrender.com/regions')
         .then(response => {
         if (!response.ok) throw new Error('Failed to fetch regions');
         return response.json();
@@ -69,7 +69,7 @@
       const month = document.getElementById('month').value;
       console.log({ region, year, month });
 
-      fetch('https://localhost:5500/get-rice-yield', {
+      fetch('riceyield.onrender.com/get-rice-yield', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ region, year, month })
