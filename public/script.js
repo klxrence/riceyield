@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
       .then(data => {
         document.getElementById('result').textContent = `Rice Yield: ${data.value}`;
         // Assuming you fetch the 3 years before and after data here
-        fetchRiceYieldChartData(region, year);
+        fetchRiceYieldChartData(region, year, month);
       })
       .catch(error => {
         document.getElementById('result').textContent = 'Error fetching data';
@@ -39,37 +39,42 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   
   // Fetch chart data for the selected region and year
-  function fetchRiceYieldChartData(region, year) {
+  function fetchRiceYieldChartData(region, year, month) {
     const years = [];
+    const months = [];
     const yields = [];
     
     // Fetch data for 3 years before and after the selected year
     for (let i = -3; i <= 3; i++) {
       const targetYear = parseInt(year) + i;
-      fetch('https://riceyield.onrender.com/get-rice-yield', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ region, year: targetYear, month: '1' }) // January as an example
-      })
-      .then(response => response.json())
-      .then(data => {
-        years.push(targetYear);
-        yields.push(data.value ? parseFloat(data.value).toFixed(2) : 'No data');
-        
-        // If all the years' data is fetched, update the chart
-        if (years.length === 7) {
-          updateChart(region, years, yields);
-        }
-      })
-      .catch(error => console.error('Error fetching chart data:', error));
+      for (let j = 1; j <= 12; j++) {  // Loop through all months
+        const targetMonth = j;
+        fetch('https://riceyield.onrender.com/get-rice-yield', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ region, year: targetYear, month: targetMonth.toString() })
+        })
+        .then(response => response.json())
+        .then(data => {
+          years.push(targetYear);
+          months.push(new Date(targetYear, targetMonth - 1).toLocaleString('default', { month: 'short' }));
+          yields.push(data.value ? parseFloat(data.value).toFixed(2) : 'No data');
+          
+          // If all the years' data is fetched, update the chart
+          if (years.length === 7 * 12) {  // 7 years * 12 months
+            updateChart(region, years, months, yields);
+          }
+        })
+        .catch(error => console.error('Error fetching chart data:', error));
+      }
     }
   }
   
   // Update the chart
-  function updateChart(region, years, yields) {
+  function updateChart(region, years, months, yields) {
     const ctx = document.getElementById('chart').getContext('2d');
     const chartData = {
-      labels: years, // Yearly data labels
+      labels: months, // Monthly labels (Jan, Feb, etc.)
       datasets: [{
         label: `Rice Yield for ${region}`, // Dynamic label with the region
         data: yields,
@@ -96,6 +101,12 @@ document.addEventListener('DOMContentLoaded', () => {
             title: {
               display: true,
               text: 'Rice Yield (tons)'
+            }
+          },
+          x: {
+            title: {
+              display: true,
+              text: 'Month/Year'
             }
           }
         }
