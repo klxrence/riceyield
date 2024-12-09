@@ -1,154 +1,136 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Fetch regions when the page loads
-    fetch('https://riceyield.onrender.com/regions')
-      .then(response => response.json())
-      .then(data => {
-        const dropdown = document.getElementById('region');
-        data.forEach(region => {
+    const regionSelect = document.getElementById('region');
+    const yearInput = document.getElementById('year');
+    const monthSelect = document.getElementById('month');
+    const resultDiv = document.getElementById('result');
+    const chartCanvas = document.getElementById('chart');
+    let chart;
+  
+    // Fetch regions on load
+    fetch('http://riceyield.onrender.com/regions') // Update URL for deployed backend
+      .then((response) => response.json())
+      .then((regions) => {
+        regions.forEach((region) => {
           const option = document.createElement('option');
           option.value = region;
           option.textContent = region;
-          dropdown.appendChild(option);
+          regionSelect.appendChild(option);
         });
       })
-      .catch(error => {
-        console.error('Error fetching regions:', error);
-      });
-  });
+      .catch((error) => console.error('Error fetching regions:', error));
   
-  // Fetch rice yield and chart data
-  function getRiceYield() {
-    const region = document.getElementById('region').value;
-    const year = document.getElementById('year').value;
-    const month = document.getElementById('month').value;
+    // Function to format date to MMM-YYYY
+    function formatDate(month, year) {
+      const date = new Date(year, month - 1);
+      return date.toLocaleString('en-US', { month: 'short', year: 'numeric' });
+    }
   
-    fetch('https://riceyield.onrender.com/get-rice-yield', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ region, year, month })
-    })
-      .then(response => response.json())
-      .then(data => {
-        document.getElementById('result').textContent = `Rice Yield: ${data.value}`;
-        // Fetch the chart data for the 3 years before and after the selected year
-        fetchRiceYieldChartData(region, year, month);
-      })
-      .catch(error => {
-        document.getElementById('result').textContent = 'Error fetching data';
-      });
-  }
+    // Fetch and display rice yield
+    async function getRiceYield() {
+      const region = regionSelect.value;
+      const year = parseInt(yearInput.value, 10);
+      const month = parseInt(monthSelect.value, 10);
   
-  // Fetch chart data for the selected region and year
-  function fetchRiceYieldChartData(region, year, month) {
-    const years = [];
-    const months = [];
-    const yields = [];
-    const highlightedIndex = null;
+      if (!region || !year || !month) {
+        alert('Please fill all fields.');
+        return;
+      }
   
-    // Fetch data for 3 years before and after the selected year
-    for (let i = -3; i <= 3; i++) {
-      const targetYear = parseInt(year) + i;
-      for (let j = 1; j <= 12; j++) {  // Loop through all months
-        const targetMonth = j;
-        fetch('https://riceyield.onrender.com/get-rice-yield', {
+      try {
+        const response = await fetch('http://riceyield.onrender.com/get-rice-yield', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ region, year: targetYear, month: targetMonth.toString() })
-        })
-        .then(response => response.json())
-        .then(data => {
-          years.push(targetYear);
-          months.push(new Date(targetYear, targetMonth - 1).toLocaleString('default', { month: 'short' }));
-          yields.push(data.value ? parseFloat(data.value).toFixed(2) : 'No data');
+          body: JSON.stringify({ region, year, month }),
+        });
+        const data = await response.json();
   
-          // If all the years' data is fetched, update the chart
-          if (years.length === 7 * 12) {  // 7 years * 12 months
-            updateChart(region, years, months, yields, year, month);
-          }
-        })
-        .catch(error => console.error('Error fetching chart data:', error));
-      }
-    }
-  }
-  
-  // Update the chart
-  function updateChart(region, years, months, yields, selectedYear, selectedMonth) {
-    // Sort the years and months to ensure they're in order
-    const sortedData = months.map((month, index) => ({
-      year: years[index],
-      month,
-      yield: yields[index]
-    }));
-  
-    // Sort by year and month
-    sortedData.sort((a, b) => {
-      const dateA = new Date(a.year, months.indexOf(a.month));
-      const dateB = new Date(b.year, months.indexOf(b.month));
-      return dateA - dateB;
-    });
-  
-    // Extract the sorted months, years, and yields
-    const sortedMonths = sortedData.map(item => item.month);
-    const sortedYears = sortedData.map(item => item.year);
-    const sortedYields = sortedData.map(item => item.yield);
-  
-    const ctx = document.getElementById('chart').getContext('2d');
-    const chartData = {
-      labels: [...new Set(sortedYears)], // Only show the years (no months)
-      datasets: [{
-        label: `Rice Yield for ${region}`, // Dynamic label with the region
-        data: sortedYields,
-        borderColor: 'rgba(75, 192, 192, 1)',
-        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-        fill: true,
-        pointRadius: 5,  // Increase the size of the dots
-        pointBackgroundColor: (context) => {
-          const index = context.dataIndex;
-          const month = sortedMonths[index];
-          const year = sortedYears[index];
-          
-          // Highlight the requested month/year with a different color
-          if (parseInt(year) === parseInt(selectedYear) && parseInt(month) === parseInt(selectedMonth)) {
-            return 'rgba(255, 99, 132, 1)';  // Highlight color (red)
-          }
-          return 'rgba(75, 192, 192, 1)';  // Regular color (greenish)
-        },
-        pointBorderColor: 'rgba(75, 192, 192, 1)',  // Border color of the dots
-      }]
-    };
-  
-    // Clear any existing chart before drawing a new one
-    if (window.chartInstance) {
-      window.chartInstance.destroy();
-    }
-  
-    // Create a new chart with the updated data
-    window.chartInstance = new Chart(ctx, {
-      type: 'line',
-      data: chartData,
-      options: {
-        responsive: true,
-        scales: {
-          y: {
-            beginAtZero: true,
-            title: {
-              display: true,
-              text: 'Rice Yield (tons)'
-            }
-          },
-          x: {
-            title: {
-              display: true,
-              text: 'Year'
-            },
-            ticks: {
-              callback: function(value, index, values) {
-                return sortedYears[index];  // Display only the year on the X-axis
-              }
-            }
-          }
+        if (response.ok) {
+          resultDiv.textContent = `Rice Yield for ${region} in ${formatDate(month, year)}: ${data.value} tons`;
+          plotChart(region, year, month);
+        } else {
+          resultDiv.textContent = data || 'Error fetching rice yield';
         }
+      } catch (error) {
+        console.error('Error:', error);
+        resultDiv.textContent = 'Error fetching rice yield';
       }
-    });
-  }
+    }
+  
+    // Plot chart for rice yield
+    async function plotChart(region, year, month) {
+      const startDate = new Date(year, month - 1);
+      const labels = [];
+      const values = [];
+      const promises = [];
+  
+      // Gather 5 months prior and 6 months ahead
+      for (let i = -5; i <= 6; i++) {
+        const targetDate = new Date(startDate);
+        targetDate.setMonth(startDate.getMonth() + i);
+  
+        const targetYear = targetDate.getFullYear();
+        const targetMonth = targetDate.getMonth() + 1;
+        labels.push(formatDate(targetMonth, targetYear));
+  
+        promises.push(
+          fetch('http://riceyield.onrender.com/get-rice-yield', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ region, year: targetYear, month: targetMonth }),
+          })
+            .then((res) => res.json())
+            .then((data) => parseFloat(data.value) || null) // Handle "No data available"
+        );
+      }
+  
+      // Fetch data and update chart
+      Promise.all(promises)
+        .then((results) => {
+          values.push(...results);
+  
+          if (chart) chart.destroy();
+  
+          chart = new Chart(chartCanvas, {
+            type: 'line',
+            data: {
+              labels,
+              datasets: [
+                {
+                  label: `Rice Yield in ${region}`,
+                  data: values,
+                  borderColor: '#4CAF50',
+                  backgroundColor: 'rgba(76, 175, 80, 0.2)',
+                  pointBackgroundColor: labels.map((_, i) =>
+                    i === 5 ? '#FF0000' : '#4CAF50' // Highlight current month
+                  ),
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              scales: {
+                x: {
+                  title: { display: true, text: 'Month-Year' },
+                },
+                y: {
+                  title: { display: true, text: 'Rice Yield (tons)' },
+                  beginAtZero: true,
+                },
+              },
+              plugins: {
+                legend: { display: true },
+                tooltip: {
+                  callbacks: {
+                    label: (context) => `${context.raw} tons`,
+                  },
+                },
+              },
+            },
+          });
+        })
+        .catch((error) => console.error('Error plotting chart:', error));
+    }
+  
+    window.getRiceYield = getRiceYield;
+  });
   
