@@ -1,180 +1,58 @@
-/* Root Variables */
-:root {
-    --primary-gradient: linear-gradient(135deg, #70ffb3, hsl(217, 100%, 86%));
-    --secondary-gradient: linear-gradient(135deg, #ff758c, #ff7eb3);
-    --background-color: #e6ffe6fb;
-    --card-bg-color: #ffffff;
-    --text-color: #2c3e50;
-    --accent-color: #ff5722;
-    --font-family: 'Montserrat', sans-serif;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rice Yield Prediction</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <div class="app-container">
+    <header class="header">
+      <h1>🌾 Rice Yield Prediction</h1>
+    </header>
+    <main class="main">
+      <div class="form-card">
+        <h2>Predict Yield</h2>
+        <form id="yield-form">
+          <label for="region">Select Region</label>
+          <select id="region">
+            <option value="">Loading regions...</option>
+          </select>
 
-/* General Reset */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+          <label for="year">Year</label>
+          <input type="number" id="year" min="1987" max="2027" placeholder="Enter year">
 
-/* Body and Layout */
-body {
-    font-family: var(--font-family);
-    background-color: var(--background-color);
-    color: var(--text-color);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    overflow-x: hidden;
-}
+          <label for="month">Month</label>
+          <select id="month">
+            <option value="1">January</option>
+            <option value="2">February</option>
+            <option value="3">March</option>
+            <option value="4">April</option>
+            <option value="5">May</option>
+            <option value="6">June</option>
+            <option value="7">July</option>
+            <option value="8">August</option>
+            <option value="9">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+          </select>
 
-.app-container {
-    width: 100%;
-    max-width: 1200px;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.header {
-    text-align: center;
-    padding: 20px 0;
-    background: var(--primary-gradient);
-    color: white;
-    border-radius: 12px;
-    animation: fadeIn 1s ease-in-out;
-}
-
-.header h1 {
-    font-size: 2.5rem;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-/* Main Content */
-.main {
-    display: flex;
-    justify-content: space-between;
-    gap: 20px;
-    width: 100%;
-}
-
-.predict-container, .yield-trend-container {
-    width: 48%;
-    background-color: var(--card-bg-color);
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
-}
-
-.predict-container {
-    /* Centered by default */
-    transform: translateX(0);
-}
-
-.yield-trend-container {
-    /* Hidden initially, will slide in */
-    transform: translateX(100%);
-    opacity: 0;
-}
-
-.predict-container h2, .yield-trend-container h2 {
-    font-size: 1.8rem;
-    margin-bottom: 15px;
-    background: var(--secondary-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-    color: var(--text-color);
-}
-
-input, select {
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-size: 1rem;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-button {
-    width: 100%;
-    padding: 12px;
-    background: var(--primary-gradient);
-    color: white;
-    font-size: 1rem;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.4s ease-in-out;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-button:hover {
-    transform: scale(1.05);
-    background: var(--secondary-gradient);
-}
-
-.result {
-    margin-top: 10px;
-    text-align: center;
-    font-size: 1.2rem;
-    color: var(--accent-color);
-    animation: popUp 0.5s ease-in-out;
-}
-
-canvas {
-    width: 100%;
-    max-height: 300px;
-    border-radius: 8px;
-}
-
-/* Footer */
-.footer {
-    text-align: center;
-    padding: 10px 0;
-    font-size: 0.9rem;
-    color: var(--text-color);
-}
-
-/* Animations */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: scale(0.9);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-
-@keyframes popUp {
-    0% {
-        transform: scale(0.95);
-        opacity: 0.8;
-    }
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .main {
-        flex-direction: column;
-    }
-
-    .predict-container, .yield-trend-container {
-        width: 100%;
-    }
-}
+          <button type="button" onclick="getRiceYield()">Predict</button>
+        </form>
+        <p id="result" class="result"></p>
+      </div>
+      <div class="chart-card">
+        <h2>Yield Trend</h2>
+        <canvas id="chart"></canvas>
+      </div>
+    </main>
+    <footer class="footer">
+      <p>© 2024 Rice Yield Prediction. All rights reserved.</p>
+    </footer>
+  </div>
+</body>
+</html>

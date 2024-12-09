@@ -21,49 +21,17 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('Error fetching regions:', error);
         regionsDropdown.innerHTML = '<option value="">Error loading regions</option>';
       });
-});
-
-// Function to handle the "Predict Yield" button click and container transition
-function showYieldTrend() {
-    // Get the containers for "Predict Yield" and "Yield Trend"
-    const yieldTrendContainer = document.querySelector('.yield-trend-container');
-    const predictContainer = document.querySelector('.predict-container');
+  });
   
-    // Check if inputs are filled out
-    const region = document.getElementById('region').value;
-    const year = parseInt(document.getElementById('year').value);
-    const month = parseInt(document.getElementById('month').value);
-
-    if (!region || !year || !month) {
-        document.getElementById('result').textContent = 'Please provide all inputs';
-        return;
-    }
-
-    // Make "Yield Trend" container visible and animate it from the background
-    yieldTrendContainer.style.transform = 'translateX(0)';
-    yieldTrendContainer.style.opacity = 1;
-    
-    // Animate the "Predict Yield" container to the left
-    predictContainer.style.transform = 'translateX(-100%)';
-    
-    // Optionally change the button text or disable it after clicking
-    const button = document.querySelector('#predictButton');
-    button.textContent = 'Prediction in Progress...';
-    button.disabled = true; // Disable the button to prevent multiple clicks
-  
-    // Fetch rice yield data after button click
-    getRiceYield();
-}
-
-// Fetch rice yield and chart data
-function getRiceYield() {
+  // Fetch rice yield and chart data
+  function getRiceYield() {
     const region = document.getElementById('region').value;
     const year = parseInt(document.getElementById('year').value);
     const month = parseInt(document.getElementById('month').value);
   
     if (!region || !year || !month) {
-        document.getElementById('result').textContent = 'Please provide all inputs';
-        return;
+      document.getElementById('result').textContent = 'Please provide all inputs';
+      return;
     }
   
     fetch('https://riceyield.onrender.com/get-rice-yield', {
@@ -85,10 +53,10 @@ function getRiceYield() {
         console.error('Error fetching rice yield:', error);
         document.getElementById('result').textContent = 'Error fetching data';
       });
-}
+  }
   
-// Fetch chart data for 5 months before and 6 months after the selected month
-function fetchRiceYieldChartData(region, year, month) {
+  // Fetch chart data for 5 months before and 6 months after the selected month
+  function fetchRiceYieldChartData(region, year, month) {
     const monthsToFetch = 12;
     const startDate = new Date(year, month - 1);
     startDate.setMonth(startDate.getMonth() - 5);
@@ -117,9 +85,9 @@ function fetchRiceYieldChartData(region, year, month) {
         updateChart(region, labels, data, year, month);
       })
       .catch(error => console.error('Error fetching chart data:', error));
-}
+  }
   
-function updateChart(region, labels, data, selectedYear, selectedMonth) {
+  function updateChart(region, labels, data, selectedYear, selectedMonth) {
     const ctx = document.getElementById('chart').getContext('2d');
     const highlightedIndex = labels.findIndex(label => {
       const [month, year] = label.split('-');
@@ -159,4 +127,5 @@ function updateChart(region, labels, data, selectedYear, selectedMonth) {
         }
       }
     });
-}
+  }
+  
