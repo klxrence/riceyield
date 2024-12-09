@@ -10,7 +10,9 @@ const PORT = 8080;
 
 // Middleware
 app.use(bodyParser.json());
-app.use(cors());
+app.use(cors({
+  origin: 'https://riceyield.vercel.app', // Replace with your Vercel URL
+}));
 app.use(express.static('public'));
 
 // Load the dataset into memory
