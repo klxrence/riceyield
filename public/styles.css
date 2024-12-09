@@ -1,8 +1,8 @@
 /* Root Variables */
 :root {
-    --primary-gradient: linear-gradient(135deg, #6a11cb, #2575fc);
+    --primary-gradient: linear-gradient(135deg, #8dffb3fc, #b6d6ff);
     --secondary-gradient: linear-gradient(135deg, #ff758c, #ff7eb3);
-    --background-color: #f9fafb;
+    --background-color: #e5ffe5;
     --card-bg-color: #ffffff;
     --text-color: #2c3e50;
     --accent-color: #ff5722;
