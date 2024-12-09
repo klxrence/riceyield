@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
       .then(response => response.json())
       .then(data => {
         document.getElementById('result').textContent = `Rice Yield: ${data.value}`;
-        // Assuming you fetch the 3 years before and after data here
+        // Fetch the chart data for the 3 years before and after the selected year
         fetchRiceYieldChartData(region, year, month);
       })
       .catch(error => {
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const years = [];
     const months = [];
     const yields = [];
-    const highlightedIndex = null;  // We'll highlight this index later
+    const highlightedIndex = null;
   
     // Fetch data for 3 years before and after the selected year
     for (let i = -3; i <= 3; i++) {
