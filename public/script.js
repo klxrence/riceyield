@@ -39,11 +39,11 @@ function showYieldTrend() {
         return;
     }
 
-    // Make "Yield Trend" container visible and animate it
-    yieldTrendContainer.style.opacity = 1;
+    // Make "Yield Trend" container visible and animate it from the background
     yieldTrendContainer.style.transform = 'translateX(0)';
+    yieldTrendContainer.style.opacity = 1;
     
-    // Push the "Predict Yield" container to the left
+    // Animate the "Predict Yield" container to the left
     predictContainer.style.transform = 'translateX(-100%)';
     
     // Optionally change the button text or disable it after clicking
