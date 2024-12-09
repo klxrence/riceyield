@@ -5,13 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Rice Yield Prediction</title>
   <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="script.js" defer></script>
 </head>
 <body>
   <div class="app-container">
     <header class="header">
-      <h1 class="gradient-text">Rice Yield Prediction 🌾</h1>
+      <h1>Rice Yield Prediction 🌾</h1>
     </header>
     <main class="main">
       <div class="form-card">
@@ -41,7 +42,7 @@
             <option value="12">December</option>
           </select>
 
-          <button type="button" onclick="getRiceYield()" class="gradient-text">Predict</button>
+          <button type="button" onclick="getRiceYield()">Predict</button>
         </form>
         <p id="result" class="result"></p>
       </div>
