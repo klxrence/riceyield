@@ -37,7 +37,7 @@
   <script>
     document.addEventListener('DOMContentLoaded', () => {
     // Fetch regions when the page loads
-    fetch('http://localhost:8080/regions')
+    fetch('http://localhost:3000/regions')
         .then(response => {
         if (!response.ok) throw new Error('Failed to fetch regions');
         return response.json();
@@ -68,7 +68,7 @@
       const month = document.getElementById('month').value;
       console.log({ region, year, month });
 
-      fetch('http://localhost:8080/get-rice-yield', {
+      fetch('http://localhost:3000/get-rice-yield', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ region, year, month })
