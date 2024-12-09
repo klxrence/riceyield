@@ -11,51 +11,39 @@
   <div class="container">
     <h1>Rice Yield Prediction</h1>
 
-    <div class="form-group">
-      <label for="region">Select Region:</label>
-      <select id="region"></select>
-    </div>
+    <label for="region">Select Region:</label>
+    <select id="region"></select>
 
-    <div class="form-group">
-      <label for="year">Year:</label>
-      <input type="number" id="year" min="1987" max="2027" placeholder="Enter year">
-    </div>
+    <label for="year">Year:</label>
+    <input type="number" id="year" min="1987" max="2027" placeholder="Enter year">
 
-    <div class="form-group">
-      <label for="month">Month:</label>
-      <select id="month">
-        <option value="1">January</option>
-        <option value="2">February</option>
-        <option value="3">March</option>
-        <option value="4">April</option>
-        <option value="5">May</option>
-        <option value="6">June</option>
-        <option value="7">July</option>
-        <option value="8">August</option>
-        <option value="9">September</option>
-        <option value="10">October</option>
-        <option value="11">November</option>
-        <option value="12">December</option>
-      </select>
-    </div>
+    <label for="month">Month:</label>
+    <select id="month">
+      <option value="1">January</option>
+      <option value="2">February</option>
+      <option value="3">March</option>
+      <option value="4">April</option>
+      <option value="5">May</option>
+      <option value="6">June</option>
+      <option value="7">July</option>
+      <option value="8">August</option>
+      <option value="9">September</option>
+      <option value="10">October</option>
+      <option value="11">November</option>
+      <option value="12">December</option>
+    </select>
 
     <button onclick="getRiceYield()">Get Rice Yield</button>
 
     <h2 id="result"></h2>
-
-    <div class="chart-container">
-      <canvas id="yieldChart"></canvas>
-    </div>
+    <canvas id="chart" width="400" height="200"></canvas>
   </div>
 
   <script>
+    // Fetch regions when the page loads
     document.addEventListener('DOMContentLoaded', () => {
-      // Fetch regions when the page loads
       fetch('https://riceyield.onrender.com/regions')
-        .then(response => {
-          if (!response.ok) throw new Error('Failed to fetch regions');
-          return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
           const dropdown = document.getElementById('region');
           data.forEach(region => {
@@ -67,14 +55,10 @@
         })
         .catch(error => {
           console.error('Error fetching regions:', error);
-          const dropdown = document.getElementById('region');
-          const errorOption = document.createElement('option');
-          errorOption.textContent = 'Error loading regions';
-          dropdown.appendChild(errorOption);
         });
     });
 
-    // Fetch rice yield for a specific date
+    // Fetch rice yield and chart data
     function getRiceYield() {
       const region = document.getElementById('region').value;
       const year = document.getElementById('year').value;
@@ -88,66 +72,43 @@
         .then(response => response.json())
         .then(data => {
           document.getElementById('result').textContent = `Rice Yield: ${data.value}`;
+          // Assuming you fetch a month-by-month chart data here
+          fetchRiceYieldChartData(region, year);
         })
         .catch(error => {
           document.getElementById('result').textContent = 'Error fetching data';
-          console.error(error);
         });
     }
 
-    // Fetch rice yield data for the chart
-    function fetchRiceYieldData(region) {
-      fetch('https://riceyield.onrender.com/get-rice-yield-data', {
+    // Fetch chart data for the selected region and year
+    function fetchRiceYieldChartData(region, year) {
+      // Example of fetching data for a chart, adjust to your dataset
+      fetch('https://riceyield.onrender.com/get-rice-yield', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ region })
+        body: JSON.stringify({ region, year, month: '1' }) // January as an example
       })
-        .then(response => response.json())
-        .then(data => {
-          const labels = data.map(item => item.date);
-          const values = data.map(item => item.value);
-          renderChart(labels, values);
-        })
-        .catch(error => console.error('Error fetching chart data:', error));
-    }
-
-    // Render the chart
-    function renderChart(labels, data) {
-      const ctx = document.getElementById('yieldChart').getContext('2d');
-      new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: labels,
+      .then(response => response.json())
+      .then(data => {
+        const chartData = {
+          labels: ['January', 'February', 'March', 'April', 'May'], // Example months
           datasets: [{
             label: 'Rice Yield',
-            data: data,
+            data: [data.value, 35, 45, 50, 60], // Replace with dynamic data
             borderColor: 'rgba(75, 192, 192, 1)',
             backgroundColor: 'rgba(75, 192, 192, 0.2)',
-            borderWidth: 2,
-            pointRadius: 3,
+            fill: true
           }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            x: { title: { display: true, text: 'Date' } },
-            y: { title: { display: true, text: 'Yield' } }
-          },
-          plugins: {
-            legend: { display: true }
-          }
-        }
-      });
-    }
+        };
 
-    // Add an event listener for the chart button
-    document.getElementById('region').addEventListener('change', () => {
-      const region = document.getElementById('region').value;
-      if (region) {
-        fetchRiceYieldData(region);
-      }
-    });
+        const ctx = document.getElementById('chart').getContext('2d');
+        new Chart(ctx, {
+          type: 'line',
+          data: chartData
+        });
+      })
+      .catch(error => console.error('Error fetching chart data:', error));
+    }
   </script>
 </body>
 </html>

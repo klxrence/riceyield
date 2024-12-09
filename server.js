@@ -6,12 +6,12 @@ const path = require('path');
 const csv = require('csv-parser');
 
 const app = express();
-const PORT = 8000;
+const PORT = 8000;  // Ensure this matches your deployed environment
 
 // Middleware
 app.use(bodyParser.json());
 app.use(cors({
-  origin: 'https://riceyield.vercel.app', // Replace with your Vercel URL
+  origin: 'https://riceyield.vercel.app', // Update to your frontend URL
 }));
 app.use(express.static('public'));
 
@@ -28,65 +28,36 @@ fs.createReadStream(filePath)
 
 // Endpoint to fetch regions
 app.get('/regions', (req, res) => {
-  if (dataset.length > 0) {
-    const regions = Object.keys(dataset[0]).filter((key) => key !== 'Date');
-    console.log('Extracted Regions:', regions);
-    res.json(regions);
-  } else {
-    console.error('Dataset not loaded yet');
-    res.status(500).send('Dataset not loaded yet');
-  }
+    if (dataset.length > 0) {
+        const regions = Object.keys(dataset[0]).filter((key) => key !== 'Date');
+        console.log('Extracted Regions:', regions);
+        res.json(regions);
+    } else {
+        console.error('Dataset not loaded yet');
+        res.status(500).send('Dataset not loaded yet');
+    }
 });
 
-// Endpoint to get rice yield for a specific region and time range
-app.post('/get-rice-yield-data', (req, res) => {
-  const { region } = req.body;
-
-  if (!region) {
-    console.error('Region not specified');
-    return res.status(400).send('Region not specified');
-  }
-
-  const regionData = dataset.map(row => ({
-    date: row.Date,
-    value: parseFloat(row[region]) || null, // Ensure numeric values
-  })).filter(data => data.value !== null); // Filter out null values
-
-  if (regionData.length > 0) {
-    console.log(`Rice yield data for ${region}:`, regionData);
-    res.json(regionData);
-  } else {
-    console.error(`No data found for region: ${region}`);
-    res.status(404).send(`No data found for region: ${region}`);
-  }
-});
-
-// Endpoint to get rice yield for a specific date
+// Endpoint to get rice yield
 app.post('/get-rice-yield', (req, res) => {
-  const { region, year, month } = req.body;
+    const { region, year, month } = req.body;
 
-  if (!region || !year || !month) {
-    console.error('Invalid input:', req.body);
-    return res.status(400).send('Invalid input');
-  }
+    if (!region || !year || !month) {
+      return res.status(400).send('Missing required parameters');
+    }
 
-  const formattedDate = `${month}/1/${year}`;
-  console.log('Formatted Date:', formattedDate);
+    const formattedDate = `${month}/1/${year}`;
+    const record = dataset.find((row) => row.Date === formattedDate);
 
-  const record = dataset.find((row) => row.Date === formattedDate);
-
-  if (record) {
-    const value = record[region];
-    console.log(`Rice Yield for ${region} on ${formattedDate}:`, value);
-    res.json({ value: value ? parseFloat(value).toFixed(2) : 'No data available' });
-  } else {
-    console.error('Date not found in dataset');
-    res.status(404).send('Date not found in dataset');
-  }
+    if (record) {
+      const value = record[region];
+      res.json({ value: value ? parseFloat(value).toFixed(2) : 'No data available' });
+    } else {
+      res.status(404).send('Date not found in dataset');
+    }
 });
 
 // Start the server
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
-  console.log('Dataset:', dataset);
 });
