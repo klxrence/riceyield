@@ -90,6 +90,12 @@ body > * {
   text-align: center;
 }
 
+canvas {
+    max-width: 100%;
+    margin: 20px auto;
+    display: block;
+  }  
+
 /* Animations */
 @keyframes fadeIn {
   0% {
@@ -131,7 +137,7 @@ body > * {
   .card {
     padding: 10px;
   }
-  
+
   label,
   select,
   input,

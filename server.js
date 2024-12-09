@@ -11,7 +11,7 @@ const PORT = 8000;
 // Middleware
 app.use(bodyParser.json());
 app.use(cors({
-  origin: 'https://riceyield.vercel.app', // Ensure this matches your frontend URL
+  origin: 'https://riceyield.vercel.app', // Replace with your Vercel URL
 }));
 app.use(express.static('public'));
 
@@ -24,9 +24,6 @@ fs.createReadStream(filePath)
   .on('data', (row) => dataset.push(row))
   .on('end', () => {
     console.log('Dataset loaded successfully');
-  })
-  .on('error', (error) => {
-    console.error('Error reading dataset:', error);
   });
 
 // Endpoint to fetch regions
@@ -41,9 +38,31 @@ app.get('/regions', (req, res) => {
   }
 });
 
-// Endpoint to get rice yield
+// Endpoint to get rice yield for a specific region and time range
+app.post('/get-rice-yield-data', (req, res) => {
+  const { region } = req.body;
+
+  if (!region) {
+    console.error('Region not specified');
+    return res.status(400).send('Region not specified');
+  }
+
+  const regionData = dataset.map(row => ({
+    date: row.Date,
+    value: parseFloat(row[region]) || null, // Ensure numeric values
+  })).filter(data => data.value !== null); // Filter out null values
+
+  if (regionData.length > 0) {
+    console.log(`Rice yield data for ${region}:`, regionData);
+    res.json(regionData);
+  } else {
+    console.error(`No data found for region: ${region}`);
+    res.status(404).send(`No data found for region: ${region}`);
+  }
+});
+
+// Endpoint to get rice yield for a specific date
 app.post('/get-rice-yield', (req, res) => {
-  console.log('Request Body:', req.body);
   const { region, year, month } = req.body;
 
   if (!region || !year || !month) {
@@ -55,11 +74,10 @@ app.post('/get-rice-yield', (req, res) => {
   console.log('Formatted Date:', formattedDate);
 
   const record = dataset.find((row) => row.Date === formattedDate);
-  console.log('Matching Record:', record);
 
   if (record) {
     const value = record[region];
-    console.log('Rice Yield for', region, 'on', formattedDate, ':', value);
+    console.log(`Rice Yield for ${region} on ${formattedDate}:`, value);
     res.json({ value: value ? parseFloat(value).toFixed(2) : 'No data available' });
   } else {
     console.error('Date not found in dataset');
@@ -67,64 +85,8 @@ app.post('/get-rice-yield', (req, res) => {
   }
 });
 
-function renderChart(labels, data) {
-  const ctx = document.getElementById('riceYieldChart').getContext('2d');
-  new Chart(ctx, {
-    type: 'line', // You can also use 'bar', 'pie', 'doughnut', etc.
-    data: {
-      labels: labels, // X-axis labels (e.g., months or years)
-      datasets: [{
-        label: 'Rice Yield (tons/hectare)',
-        data: data, // Y-axis data
-        backgroundColor: 'rgba(75, 192, 192, 0.2)', // Bar/area color
-        borderColor: 'rgba(75, 192, 192, 1)', // Line color
-        borderWidth: 1,
-        fill: true, // Fill area under the line
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { display: true },
-        tooltip: { enabled: true }
-      },
-      scales: {
-        x: { title: { display: true, text: 'Time Period' } },
-        y: { title: { display: true, text: 'Rice Yield (tons/hectare)' } }
-      }
-    }
-  });
-}
-
-function fetchRiceYieldData(region) {
-  fetch('https://riceyield.onrender.com/regions') // Adjust to your API endpoint
-    .then(response => response.json())
-    .then(data => {
-      // Example: Simulate labels (months) and data for the selected region
-      const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      const yieldData = labels.map(label => Math.random() * 5); // Replace with actual data
-
-      renderChart(labels, yieldData);
-    })
-    .catch(error => console.error('Error fetching data:', error));
-}
-
-// Call the function with the desired region
-fetchRiceYieldData('Central Luzon');
-
-document.getElementById('region').addEventListener('change', (e) => {
-  fetchRiceYieldData(e.target.value);
-});
-options: {
-  animation: {
-    duration: 1000, // 1-second animation
-    easing: 'easeInOutQuad'
-  }
-}
-
-
-
 // Start the server
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
+  console.log('Dataset:', dataset);
 });
