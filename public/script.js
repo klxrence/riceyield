@@ -43,7 +43,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const years = [];
     const months = [];
     const yields = [];
-    
+    const highlightedIndex = null;  // We'll highlight this index later
+  
     // Fetch data for 3 years before and after the selected year
     for (let i = -3; i <= 3; i++) {
       const targetYear = parseInt(year) + i;
@@ -59,10 +60,10 @@ document.addEventListener('DOMContentLoaded', () => {
           years.push(targetYear);
           months.push(new Date(targetYear, targetMonth - 1).toLocaleString('default', { month: 'short' }));
           yields.push(data.value ? parseFloat(data.value).toFixed(2) : 'No data');
-          
+  
           // If all the years' data is fetched, update the chart
           if (years.length === 7 * 12) {  // 7 years * 12 months
-            updateChart(region, years, months, yields);
+            updateChart(region, years, months, yields, year, month);
           }
         })
         .catch(error => console.error('Error fetching chart data:', error));
@@ -71,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   
   // Update the chart
-  function updateChart(region, years, months, yields) {
+  function updateChart(region, years, months, yields, selectedYear, selectedMonth) {
     // Sort the years and months to ensure they're in order
     const sortedData = months.map((month, index) => ({
       year: years[index],
@@ -93,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
     const ctx = document.getElementById('chart').getContext('2d');
     const chartData = {
-      labels: sortedMonths, // Monthly labels (Jan, Feb, etc.)
+      labels: [...new Set(sortedYears)], // Only show the years (no months)
       datasets: [{
         label: `Rice Yield for ${region}`, // Dynamic label with the region
         data: sortedYields,
@@ -101,7 +102,17 @@ document.addEventListener('DOMContentLoaded', () => {
         backgroundColor: 'rgba(75, 192, 192, 0.2)',
         fill: true,
         pointRadius: 5,  // Increase the size of the dots
-        pointBackgroundColor: 'rgba(75, 192, 192, 1)',  // Color of the dots
+        pointBackgroundColor: (context) => {
+          const index = context.dataIndex;
+          const month = sortedMonths[index];
+          const year = sortedYears[index];
+          
+          // Highlight the requested month/year with a different color
+          if (parseInt(year) === parseInt(selectedYear) && parseInt(month) === parseInt(selectedMonth)) {
+            return 'rgba(255, 99, 132, 1)';  // Highlight color (red)
+          }
+          return 'rgba(75, 192, 192, 1)';  // Regular color (greenish)
+        },
         pointBorderColor: 'rgba(75, 192, 192, 1)',  // Border color of the dots
       }]
     };
@@ -128,12 +139,11 @@ document.addEventListener('DOMContentLoaded', () => {
           x: {
             title: {
               display: true,
-              text: 'Month/Year'
+              text: 'Year'
             },
             ticks: {
               callback: function(value, index, values) {
-                const year = sortedYears[index];
-                return `${sortedMonths[index]} ${year}`;
+                return sortedYears[index];  // Display only the year on the X-axis
               }
             }
           }
