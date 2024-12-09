@@ -72,15 +72,37 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Update the chart
   function updateChart(region, years, months, yields) {
+    // Sort the years and months to ensure they're in order
+    const sortedData = months.map((month, index) => ({
+      year: years[index],
+      month,
+      yield: yields[index]
+    }));
+  
+    // Sort by year and month
+    sortedData.sort((a, b) => {
+      const dateA = new Date(a.year, months.indexOf(a.month));
+      const dateB = new Date(b.year, months.indexOf(b.month));
+      return dateA - dateB;
+    });
+  
+    // Extract the sorted months, years, and yields
+    const sortedMonths = sortedData.map(item => item.month);
+    const sortedYears = sortedData.map(item => item.year);
+    const sortedYields = sortedData.map(item => item.yield);
+  
     const ctx = document.getElementById('chart').getContext('2d');
     const chartData = {
-      labels: months, // Monthly labels (Jan, Feb, etc.)
+      labels: sortedMonths, // Monthly labels (Jan, Feb, etc.)
       datasets: [{
         label: `Rice Yield for ${region}`, // Dynamic label with the region
-        data: yields,
+        data: sortedYields,
         borderColor: 'rgba(75, 192, 192, 1)',
         backgroundColor: 'rgba(75, 192, 192, 0.2)',
-        fill: true
+        fill: true,
+        pointRadius: 5,  // Increase the size of the dots
+        pointBackgroundColor: 'rgba(75, 192, 192, 1)',  // Color of the dots
+        pointBorderColor: 'rgba(75, 192, 192, 1)',  // Border color of the dots
       }]
     };
   
@@ -107,6 +129,12 @@ document.addEventListener('DOMContentLoaded', () => {
             title: {
               display: true,
               text: 'Month/Year'
+            },
+            ticks: {
+              callback: function(value, index, values) {
+                const year = sortedYears[index];
+                return `${sortedMonths[index]} ${year}`;
+              }
             }
           }
         }
