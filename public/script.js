@@ -57,13 +57,14 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Fetch chart data for 5 months before and 6 months after the selected month
   function fetchRiceYieldChartData(region, year, month) {
-    const monthsToFetch = 12;
+    const monthsToFetch = 12; // 5 months before and 6 months after
     const startDate = new Date(year, month - 1);
     startDate.setMonth(startDate.getMonth() - 5);
   
     const promises = [];
     const labels = [];
-    
+  
+    // Fetch data for the 12 months
     for (let i = 0; i < monthsToFetch; i++) {
       const targetDate = new Date(startDate);
       targetDate.setMonth(targetDate.getMonth() + i);
@@ -79,17 +80,22 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .then(response => response.json())
         .then(data => {
-          return data.value ? parseFloat(data.value) : null;
+          return data.value ? parseFloat(data.value) : null; // Return null for missing data
+        })
+        .catch(error => {
+          console.error('Error fetching chart data:', error);
+          return null; // Return null if error fetching data
         })
       );
     }
   
+    // Process the results to handle missing data and render the chart
     Promise.all(promises)
       .then(results => {
         const data = results.map(result => result === null ? null : result);
         updateChart(region, labels, data, year, month);
       })
-      .catch(error => console.error('Error fetching chart data:', error));
+      .catch(error => console.error('Error processing chart data:', error));
   }
   
   function updateChart(region, labels, data, selectedYear, selectedMonth) {
