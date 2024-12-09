@@ -67,6 +67,63 @@ app.post('/get-rice-yield', (req, res) => {
   }
 });
 
+function renderChart(labels, data) {
+  const ctx = document.getElementById('riceYieldChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'line', // You can also use 'bar', 'pie', 'doughnut', etc.
+    data: {
+      labels: labels, // X-axis labels (e.g., months or years)
+      datasets: [{
+        label: 'Rice Yield (tons/hectare)',
+        data: data, // Y-axis data
+        backgroundColor: 'rgba(75, 192, 192, 0.2)', // Bar/area color
+        borderColor: 'rgba(75, 192, 192, 1)', // Line color
+        borderWidth: 1,
+        fill: true, // Fill area under the line
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: true },
+        tooltip: { enabled: true }
+      },
+      scales: {
+        x: { title: { display: true, text: 'Time Period' } },
+        y: { title: { display: true, text: 'Rice Yield (tons/hectare)' } }
+      }
+    }
+  });
+}
+
+function fetchRiceYieldData(region) {
+  fetch('https://riceyield.onrender.com/regions') // Adjust to your API endpoint
+    .then(response => response.json())
+    .then(data => {
+      // Example: Simulate labels (months) and data for the selected region
+      const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const yieldData = labels.map(label => Math.random() * 5); // Replace with actual data
+
+      renderChart(labels, yieldData);
+    })
+    .catch(error => console.error('Error fetching data:', error));
+}
+
+// Call the function with the desired region
+fetchRiceYieldData('Central Luzon');
+
+document.getElementById('region').addEventListener('change', (e) => {
+  fetchRiceYieldData(e.target.value);
+});
+options: {
+  animation: {
+    duration: 1000, // 1-second animation
+    easing: 'easeInOutQuad'
+  }
+}
+
+
+
 // Start the server
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

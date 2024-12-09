@@ -128,6 +128,10 @@ body > * {
     font-size: 2rem;
   }
 
+  .card {
+    padding: 10px;
+  }
+  
   label,
   select,
   input,
