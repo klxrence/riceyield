@@ -11,7 +11,7 @@ const PORT = 3000;
 // Middleware
 app.use(bodyParser.json());
 app.use(cors({
-  origin: 'https://riceyield.onrender.com', // Replace with your Vercel URL
+  origin: 'https://riceyield.vercel.app', // Replace with your Vercel URL
 }));
 app.use(express.static('public'));
 
