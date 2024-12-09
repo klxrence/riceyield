@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rice Yield Prediction</title>
+</head>
+<body>
+  <h1>Rice Yield Prediction</h1>
+
+  <label for="region">Select Region:</label>
+  <select id="region"></select>
+
+  <label for="year">Year:</label>
+  <input type="number" id="year" min="1987" max="2027" placeholder="Enter year">
+
+  <label for="month">Month:</label>
+  <select id="month">
+    <option value="1">January</option>
+    <option value="2">February</option>
+    <option value="3">March</option>
+    <option value="4">April</option>
+    <option value="5">May</option>
+    <option value="6">June</option>
+    <option value="7">July</option>
+    <option value="8">August</option>
+    <option value="9">September</option>
+    <option value="10">October</option>
+    <option value="11">November</option>
+    <option value="12">December</option>
+  </select>
+
+  <button onclick="getRiceYield()">Get Rice Yield</button>
+
+  <h2 id="result"></h2>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+    // Fetch regions when the page loads
+    fetch('http://localhost:8080/regions')
+        .then(response => {
+        if (!response.ok) throw new Error('Failed to fetch regions');
+        return response.json();
+        })
+        .then(data => {
+        const dropdown = document.getElementById('region');
+        data.forEach(region => {
+            const option = document.createElement('option');
+            option.value = region;
+            option.textContent = region;
+            dropdown.appendChild(option);
+        });
+        })
+        .catch(error => {
+        console.error('Error fetching regions:', error);
+        const dropdown = document.getElementById('region');
+        const errorOption = document.createElement('option');
+        errorOption.textContent = 'Error loading regions';
+        dropdown.appendChild(errorOption);
+        });
+    });
+
+
+    // Fetch rice yield
+    function getRiceYield() {
+      const region = document.getElementById('region').value;
+      const year = document.getElementById('year').value;
+      const month = document.getElementById('month').value;
+      console.log({ region, year, month });
+
+      fetch('http://localhost:8080/get-rice-yield', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ region, year, month })
+      })
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById('result').textContent = `Rice Yield: ${data.value}`;
+        })
+        .catch(error => {
+          document.getElementById('result').textContent = 'Error fetching data';
+        });
+    }
+  </script>
+</body>
+</html>
