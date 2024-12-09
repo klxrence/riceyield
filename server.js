@@ -6,7 +6,7 @@ const path = require('path');
 const csv = require('csv-parser');
 
 const app = express();
-const PORT = 8000;  // Ensure this matches your deployed environment
+const PORT = 8000; // Ensure this matches your deployed environment
 
 // Middleware
 app.use(bodyParser.json());
@@ -28,33 +28,33 @@ fs.createReadStream(filePath)
 
 // Endpoint to fetch regions
 app.get('/regions', (req, res) => {
-    if (dataset.length > 0) {
-        const regions = Object.keys(dataset[0]).filter((key) => key !== 'Date');
-        console.log('Extracted Regions:', regions);
-        res.json(regions);
-    } else {
-        console.error('Dataset not loaded yet');
-        res.status(500).send('Dataset not loaded yet');
-    }
+  if (dataset.length > 0) {
+    const regions = Object.keys(dataset[0]).filter((key) => key !== 'Date');
+    console.log('Extracted Regions:', regions);
+    res.json(regions);
+  } else {
+    console.error('Dataset not loaded yet');
+    res.status(500).send('Dataset not loaded yet');
+  }
 });
 
 // Endpoint to get rice yield
 app.post('/get-rice-yield', (req, res) => {
-    const { region, year, month } = req.body;
+  const { region, year, month } = req.body;
 
-    if (!region || !year || !month) {
-      return res.status(400).send('Missing required parameters');
-    }
+  if (!region || !year || !month) {
+    return res.status(400).send('Missing required parameters');
+  }
 
-    const formattedDate = `${month}/1/${year}`;
-    const record = dataset.find((row) => row.Date === formattedDate);
+  const formattedDate = `${month}/1/${year}`;
+  const record = dataset.find((row) => row.Date === formattedDate);
 
-    if (record) {
-      const value = record[region];
-      res.json({ value: value ? parseFloat(value).toFixed(2) : 'No data available' });
-    } else {
-      res.status(404).send('Date not found in dataset');
-    }
+  if (record) {
+    const value = record[region];
+    res.json({ value: value ? parseFloat(value).toFixed(2) : 'No data available' });
+  } else {
+    res.status(404).send('Date not found in dataset');
+  }
 });
 
 // Start the server
