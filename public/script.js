@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const regionsDropdown = document.getElementById('region');
   
-    fetch('https://riceyield.onrender.com/regions') // Update to match your backend URL
+    fetch('https://riceyield.onrender.com/regions')
       .then(response => {
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
